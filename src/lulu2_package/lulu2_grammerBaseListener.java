@@ -8,7 +8,7 @@ public class lulu2_grammerBaseListener implements lulu2_grammerListener {
 
 	@Override public void enterProgram(lulu2_grammerParser.ProgramContext ctx) {}
 	@Override public void exitProgram(lulu2_grammerParser.ProgramContext ctx) { }
-	@Override public void enterFt_dcl(lulu2_grammerParser.Ft_dclContext ctx) { }
+	@Override public void enterFt_dcl(lulu2_grammerParser.Ft_dclContext ctx) {}
 	@Override public void exitFt_dcl(lulu2_grammerParser.Ft_dclContext ctx) { }
 	@Override public void enterFunc_dcl(lulu2_grammerParser.Func_dclContext ctx) { }
 	@Override public void exitFunc_dcl(lulu2_grammerParser.Func_dclContext ctx) { }
