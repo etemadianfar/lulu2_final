@@ -1,12 +1,9 @@
-package lulu2_package;// Generated from C:/Users/alireza/Desktop/lulu2_final/src\lulu2_grammer.g4 by ANTLR 4.7.2
+package lulu2_package;// Generated from D:/Intelli j/lulu2_final/src\lulu2_grammer.g4 by ANTLR 4.7.2
 import org.antlr.v4.runtime.atn.*;
 import org.antlr.v4.runtime.dfa.DFA;
 import org.antlr.v4.runtime.*;
-import org.antlr.v4.runtime.misc.*;
 import org.antlr.v4.runtime.tree.*;
 import java.util.List;
-import java.util.Iterator;
-import java.util.ArrayList;
 
 @SuppressWarnings({"all", "warnings", "unchecked", "unused", "cast"})
 public class lulu2_grammerParser extends Parser {
@@ -39,7 +36,7 @@ public class lulu2_grammerParser extends Parser {
 			"program", "ft_dcl", "func_dcl", "args", "args_var", "type_dcl", "var_def", 
 			"var_val", "ft_def", "type_def", "component", "access_modifier", "fun_def", 
 			"block", "stmt", "assign", "var", "ref", "expr", "func_call", "list", 
-			"handle_call", "params", "cond_stmt", "switch_body", "loop_stmt", "type", 
+			"handle_call", "params", "cond_stmt", "switch_body", "loop_stmt", "types",
 			"const_val", "unary_op", "op1", "op2", "op3", "op4", "bitwise", "logical"
 		};
 	}
