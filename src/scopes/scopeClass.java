@@ -3,8 +3,6 @@ package scopes;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-enum scopeType {DECLARE, FUNCTION, USER_DEFINE_TYPE};
-
 public class scopeClass {
 
     private HashMap<String, symbolTableRow> symbolTable; //for keeping contents's informations
@@ -12,9 +10,9 @@ public class scopeClass {
     private ArrayList<scopeClass> childrens;
     private int scopeWidth;
     private String scopeID;
-    private scopeType scopeType;
+    private scopeTypeEnum scopeType;
 
-    public scopeClass(scopeClass fatherNode, String scopeID, scopeType scopeType) {
+    public scopeClass(scopeClass fatherNode, String scopeID, scopeTypeEnum scopeType) {
         symbolTable = new HashMap<String, symbolTableRow>();
 
         this.fatherNode = fatherNode;
@@ -62,11 +60,11 @@ public class scopeClass {
         this.scopeID = scopeID;
     }
 
-    public scopeType getScopeType() {
+    public scopeTypeEnum getScopeType() {
         return scopeType;
     }
 
-    public void setScopeType(scopeType scopeType) {
+    public void setScopeType(scopeTypeEnum scopeType) {
         this.scopeType = scopeType;
     }
 }
