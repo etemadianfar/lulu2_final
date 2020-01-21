@@ -9,7 +9,7 @@ import org.antlr.v4.runtime.CommonToken;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
-public class Main extends lulu2_grammerBaseVisitor{
+public class Main{
     public static void main(String[] args) throws Exception {
         String st = "declare {\n" +
                 "int a;\n" +
@@ -41,7 +41,7 @@ public class Main extends lulu2_grammerBaseVisitor{
         parser.setBuildParseTree(true);
         ParseTree tree = parser.program();
 
-	lulu2_grammerListener listener = new lulu2_grammerBaseListener();
+	    lulu2_grammerListener listener = new lulu2_grammerBaseListener();
         ParseTreeWalker walker = new ParseTreeWalker();
         walker.walk(listener, tree);
     }
