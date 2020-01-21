@@ -40,5 +40,9 @@ public class Main extends lulu2_grammerBaseVisitor{
         lulu2_grammerParser parser = new lulu2_grammerParser(tokens);
         parser.setBuildParseTree(true);
         ParseTree tree = parser.program();
+
+	lulu2_grammerListener listener = new lulu2_grammerBaseListener();
+        ParseTreeWalker walker = new ParseTreeWalker();
+        walker.walk(listener, tree);
     }
 }
