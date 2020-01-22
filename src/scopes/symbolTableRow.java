@@ -1,10 +1,14 @@
 package scopes;
 
+import enums.AccessLabel;
+import enums.Types;
+
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
-enum Types { CLASS, FUNCTION, INT, STRING, FLOAT, BOOL, ARRAY};
-enum AccessLabel {NULL, PUBLIC, PRIVATE, PROTECTED};
+;
+;
 
 public class symbolTableRow {
 
@@ -12,8 +16,8 @@ public class symbolTableRow {
     private int width;
     private int reAddress;
     private AccessLabel accessLabel;
-    private ArrayList<Map<String, Types>> arguments;
-    private ArrayList<Map<String, Types>> parameters;
+    private HashMap<String, Types> arguments;
+    private HashMap<String, Types> parameters;
     private ArrayList<Integer> dimention;
 
     //class
@@ -22,7 +26,7 @@ public class symbolTableRow {
     }
 
     //function
-    public symbolTableRow(Types type, ArrayList<Map<String, Types>> arguments, ArrayList<Map<String, Types>> parameters) {
+    public symbolTableRow(Types type, HashMap<String, Types> arguments, HashMap<String, Types> parameters) {
         this.type = type;
         this.arguments = arguments;
         this.parameters = parameters;
@@ -68,19 +72,19 @@ public class symbolTableRow {
         this.accessLabel = accessLabel;
     }
 
-    public ArrayList<Map<String, Types>> getArguments() {
+    public Map<String, Types> getArguments() {
         return arguments;
     }
 
-    public void setArguments(ArrayList<Map<String, Types>> arguments) {
+    public void setArguments(HashMap<String, Types> arguments) {
         this.arguments = arguments;
     }
 
-    public ArrayList<Map<String, Types>> getParameters() {
+    public Map<String, Types> getParameters() {
         return parameters;
     }
 
-    public void setParameters(ArrayList<Map<String, Types>> parameters) {
+    public void setParameters(HashMap<String, Types> parameters) {
         this.parameters = parameters;
     }
 

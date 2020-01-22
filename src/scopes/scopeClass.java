@@ -1,5 +1,7 @@
 package scopes;
 
+import enums.scopeTypeEnum;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -12,9 +14,14 @@ public class scopeClass {
     private String scopeID;
     private scopeTypeEnum scopeType;
 
+    public void addChild(scopeClass child){
+        this.childrens.add(child);
+    }
+
     public scopeClass(scopeClass fatherNode, String scopeID, scopeTypeEnum scopeType) {
         symbolTable = new HashMap<String, symbolTableRow>();
 
+        childrens = new ArrayList<>();
         this.fatherNode = fatherNode;
         this.scopeID = scopeID;
         this.scopeType = scopeType;

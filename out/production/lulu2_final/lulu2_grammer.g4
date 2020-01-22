@@ -1,5 +1,5 @@
 grammar lulu2_grammer;
-program : ft_dcl? ft_def+;
+rogram : ft_dcl? ft_def+;
 ft_dcl  : 'declare' '{' (func_dcl | type_dcl | var_def)+ '}';
 func_dcl: ('(' args ')' '=')? ID '(' (args | args_var)? ')' ';';
 args    : type ( '[' ']' )* | args ',' type ( '[' ']' )*;
@@ -8,7 +8,7 @@ type_dcl: ID ';';
 var_def : 'const'? type var_val ( ',' var_val )* ';';
 var_val : ref ( '=' expr)?;
 ft_def  : ( type_def | fun_def );
-type_def: type ID ( ':' ID )? '{' component+ '}';
+type_def: 'type' ID ( ':' ID )? '{' component+ '}';
 component: access_modifier? ( var_def | fun_def );
 access_modifier: 'private' | 'public' | 'protected';
 fun_def : ( '(' args_var ')' '=' )? 'function' ID '(' args_var? ')' block;

@@ -11,26 +11,63 @@ import org.antlr.v4.runtime.tree.ParseTreeWalker;
 
 public class Main{
     public static void main(String[] args) throws Exception {
-        String st = "declare {\n" +
-                "int a;\n" +
-                "myType;\n" +
-                "(int, float) = f1(float b);\n" +
+        String st = "declare{\n" +
+                "    int a;\n" +
+                "    helloType;\n" +
+                "    (int , float) = myFunc1(bool a, string b);\n" +
                 "}\n" +
-                "type myType {\n" +
-                "protected int x;\n" +
-                "public (float y) = function myFun(int z){\n" +
-                "if (z > this.x) {\n" +
-                "y = 23.5; }\n" +
-                "else {\n" +
-                "y = 15.2; }\n" +
+                "(int a, float b) = function myFunc1(int j, int i){\n" +
+                "    while j<=10 && i!=0 && (i||j){\n" +
+                "        if (j == 10) {\n" +
+                "            i = 1;\n" +
+                "            break;\n" +
+                "        }\n" +
+                "        else{\n" +
+                "            if(j >=6){\n" +
+                "                read();\n" +
+                "            }\n" +
+                "            if(j >= 8){\n" +
+                "                write(a);\n" +
+                "            }\n" +
+                "            else{\n" +
+                "                continue;\n" +
+                "            }\n" +
+                "        }\n" +
+                "    }\n" +
                 "}\n" +
+                "(string str1) = function myFunc2(string str2){\n" +
+                "    switch str2 {\n" +
+                "        caseof 1:{\n" +
+                "            str1 = 'this is case 1';\n" +
+                "        }\n" +
+                "        caseof 1:{\n" +
+                "            str2 = 'this is case 2' ;\n" +
+                "        }\n" +
+                "        default:{\n" +
+                "            str2 = myFunc1(1,2);\n" +
+                "        }\n" +
+                "    }\n" +
                 "}\n" +
-                "(int r) = function start() {\n" +
-                "const float c = 0.23;\n" +
-                "int s;\n" +
-                "read();\n" +
-                "float w;\n" +
-                "(r, w) = f1(s);\n" +
+                "(bool bo) = function myFunc3(int[] c, string str){\n" +
+                "    int a = 0x23;\n" +
+                "    str = 'is this a\\t valid String\\...\\n? yeah this is valid String~!\\\\ %$%#$#$ (){}[] ';\n" +
+                "}\n" +
+                "\n" +
+                "type myType1{\n" +
+                "    int sum;\n" +
+                "    private const int x,y,z;\n" +
+                "    (string s) = function myFunc(){\n" +
+                "        if(x == 4 && (y == 10 || z >= 1)){\n" +
+                "            for int i = 0; i <= 10; {\n" +
+                "                destruct [][]arr;\n" +
+                "                if(i == 5){\n" +
+                "                    continue;\n" +
+                "                }else{\n" +
+                "                    sum = i+5*x;\n" +
+                "                }\n" +
+                "            }\n" +
+                "        }\n" +
+                "    }\n" +
                 "}";
 
         CharStream input = CharStreams.fromString(st);
