@@ -1,5 +1,5 @@
 grammar lulu2_grammer;
-rogram : ft_dcl? ft_def+;
+program : ft_dcl? ft_def+;
 ft_dcl  : 'declare' '{' (func_dcl | type_dcl | var_def)+ '}';
 func_dcl: ('(' args ')' '=')? ID '(' (args | args_var)? ')' ';';
 args    : type ( '[' ']' )* | args ',' type ( '[' ']' )*;

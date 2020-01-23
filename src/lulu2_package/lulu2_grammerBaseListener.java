@@ -28,14 +28,21 @@ public class lulu2_grammerBaseListener implements lulu2_grammerListener {
 
 
 	@Override public void enterProgram(lulu2_grammerParser.ProgramContext ctx) { }
-	@Override public void exitProgram(lulu2_grammerParser.ProgramContext ctx) { }
+	@Override public void exitProgram(lulu2_grammerParser.ProgramContext ctx) {
+		tree.BFS(tree.startNode);
+	}
 	@Override public void enterFt_dcl(lulu2_grammerParser.Ft_dclContext ctx) {
+		currentSymbolTable.put("declare",new symbolTableRow(Types.DECLARE));
+
 		temp_scopeClass = new scopeClass(currentScope, "decalre", scopeTypeEnum.DECLARE);
 		currentScope.addChild(temp_scopeClass);
 		currentScope = temp_scopeClass;
 		currentSymbolTable = temp_scopeClass.getSymbolTable();
 	}
-	@Override public void exitFt_dcl(lulu2_grammerParser.Ft_dclContext ctx) { }
+	@Override public void exitFt_dcl(lulu2_grammerParser.Ft_dclContext ctx) {
+		currentScope = currentScope.getFatherNode();
+		currentSymbolTable = currentScope.getSymbolTable();
+	}
 
 	//------------------------------------------------------------------------------------------
 	public void getParameters(lulu2_grammerParser.ArgsContext ttx){
@@ -177,14 +184,29 @@ public class lulu2_grammerBaseListener implements lulu2_grammerListener {
 		currentScope = temp_scopeClass;
 		currentSymbolTable = temp_scopeClass.getSymbolTable();
 	}
-	@Override public void exitType_def(lulu2_grammerParser.Type_defContext ctx) { }
+	@Override public void exitType_def(lulu2_grammerParser.Type_defContext ctx) {
+
+		int width_included = 0;
+
+		for(symbolTableRow str : currentScope.getSymbolTable().values()){
+			if(str.getType() == Types.INT) width_included += 4;
+			else if(str.getType() == Types.FLOAT) width_included += 8;
+			else if(str.getType() == Types.BOOL) width_included += 1;
+			else if(str.getType() == Types.STRING) width_included += 0;
+			else if(str.getType() == Types.USER_DEFINED) width_included += 4;
+			else if(str.getType() == Types.FUNCTION) width_included += str.getWidth();
+		}
+
+		currentScope.setScopeWidth(width_included + 10);
+
+		currentScope = currentScope.getFatherNode();
+		currentSymbolTable = currentScope.getSymbolTable();
+	}
 	@Override public void enterComponent(lulu2_grammerParser.ComponentContext ctx) { }
 	@Override public void exitComponent(lulu2_grammerParser.ComponentContext ctx) { }
 	@Override public void enterAccess_modifier(lulu2_grammerParser.Access_modifierContext ctx) { }
 	@Override public void exitAccess_modifier(lulu2_grammerParser.Access_modifierContext ctx) { }
 	@Override public void enterFun_def(lulu2_grammerParser.Fun_defContext ctx) {
-
-		temp_scopeClass = new scopeClass(currentScope, ctx.ID().getText(), scopeTypeEnum.FUNCTION);
 		currentSymbolTable = currentScope.getSymbolTable();
 		HashMap<String, Types> temp_arguments;
 		HashMap<String, Types> temp_parameters= null;
@@ -208,37 +230,109 @@ public class lulu2_grammerBaseListener implements lulu2_grammerListener {
 		}
 
 		currentSymbolTable.put(ctx.ID().getText(), new symbolTableRow(Types.FUNCTION, temp_arguments, temp_parameters)); // here we create a row in current symboltable
-		// here we need to go to function scope;
-		currentScope.addChild(temp_scopeClass);
-		currentScope = temp_scopeClass;
-		currentSymbolTable = temp_scopeClass.getSymbolTable(); // also we should remember that now we go to block rule and at there we add new row to our
+
 	}
-	@Override public void exitFun_def(lulu2_grammerParser.Fun_defContext ctx) { }
+	@Override public void exitFun_def(lulu2_grammerParser.Fun_defContext ctx) {
+		int width_arg = 0;
+		int width_parameters = 0;
+		int width_included = 0;
+
+		symbolTableRow temp = currentScope.getFatherNode().getSymbolTable().get(ctx.ID().getText());
+
+		//calculate args width
+		if(temp != null) {
+			for (Types type : temp.getArguments().values()) {
+				if (type == Types.INT) width_arg += 4;
+				else if (type == Types.FLOAT) width_arg += 8;
+				else if (type == Types.BOOL) width_arg += 1;
+				else if (type == Types.STRING) width_arg += 0;
+				else if (type == Types.USER_DEFINED) width_arg += 4;
+			}
+		}
+
+		//calculate params width
+		if(temp != null) {
+			for (Types type : temp.getParameters().values()) {
+				if (type == Types.INT) width_parameters += 4;
+				else if (type == Types.FLOAT) width_parameters += 8;
+				else if (type == Types.BOOL) width_parameters += 1;
+				else if (type == Types.STRING) width_parameters += 0;
+				else if (type == Types.USER_DEFINED) width_parameters += 4;
+			}
+		}
+
+		//calculate included width
+		if(currentScope != null) {
+			for (symbolTableRow str : currentScope.getSymbolTable().values()) {
+				if (str.getType() == Types.INT) width_included += 4;
+				else if (str.getType() == Types.FLOAT) width_included += 8;
+				else if (str.getType() == Types.BOOL) width_included += 1;
+				else if (str.getType() == Types.STRING) width_included += 0;
+				else if (str.getType() == Types.USER_DEFINED) width_included += 4;
+			}
+		}
+
+		currentScope.setScopeWidth(width_arg + width_included + width_parameters);
+
+		currentScope = currentScope.getFatherNode();
+		currentSymbolTable = currentScope.getSymbolTable();
+	}
 	@Override public void enterBlock(lulu2_grammerParser.BlockContext ctx) {
 		String parentName = ctx.getParent().getClass().getSimpleName().toLowerCase().replace("context","");
 
 		if(parentName.equals("fun_def")) {
-			if(ctx.getParent().getChildCount() == 10)
+			if(ctx.getParent().getChildCount() == 10){
 				temp_scopeClass = new scopeClass(currentScope, ctx.getParent().getChild(5).getText(), scopeTypeEnum.FUNCTION);
-			else if(ctx.getParent().getChildCount() == 6)
+				currentScope.addChild(temp_scopeClass);
+				currentScope = temp_scopeClass;
+				currentSymbolTable = temp_scopeClass.getSymbolTable();
+			}
+			else if(ctx.getParent().getChildCount() == 6) {
 				temp_scopeClass = new scopeClass(currentScope, ctx.getParent().getChild(1).getText(), scopeTypeEnum.FUNCTION);
-			else if(ctx.getParent().getChildCount() == 9)
+				currentScope.addChild(temp_scopeClass);
+				currentScope = temp_scopeClass;
+				currentSymbolTable = temp_scopeClass.getSymbolTable();
+			}
+			else if(ctx.getParent().getChildCount() == 9) {
 				temp_scopeClass = new scopeClass(currentScope, ctx.getParent().getChild(5).getText(), scopeTypeEnum.FUNCTION);
-			else if(ctx.getParent().getChildCount() == 5)
+				currentScope.addChild(temp_scopeClass);
+				currentScope = temp_scopeClass;
+				currentSymbolTable = temp_scopeClass.getSymbolTable();
+			}
+			else if(ctx.getParent().getChildCount() == 5) {
 				temp_scopeClass = new scopeClass(currentScope, ctx.getParent().getChild(1).getText(), scopeTypeEnum.FUNCTION);
+				currentScope.addChild(temp_scopeClass);
+				currentScope = temp_scopeClass;
+				currentSymbolTable = temp_scopeClass.getSymbolTable();
+			}
 		}
-		else if(parentName.equals("cond_stmt"))
+		else if(parentName.equals("cond_stmt")) {
 			temp_scopeClass = new scopeClass(currentScope, "if", scopeTypeEnum.OTHERS);
-		else if(parentName.equals("switch_body"))
+			currentScope.addChild(temp_scopeClass);
+			currentScope = temp_scopeClass;
+			currentSymbolTable = temp_scopeClass.getSymbolTable();
+		}
+		else if(parentName.equals("switch_body")) {
 			temp_scopeClass = new scopeClass(currentScope, "switch", scopeTypeEnum.OTHERS);
+			currentScope.addChild(temp_scopeClass);
+			currentScope = temp_scopeClass;
+			currentSymbolTable = temp_scopeClass.getSymbolTable();
+		}
 		else if(parentName.equals("loop_stmt"))
 			; //chon bayad motoghayere shomarandeh ro be jadval add kard dar loop_stmt gharar gerefteh
 
-		currentScope.addChild(temp_scopeClass);
-		currentScope = temp_scopeClass;
-		currentSymbolTable = temp_scopeClass.getSymbolTable();
 	}
-	@Override public void exitBlock(lulu2_grammerParser.BlockContext ctx) { }
+	@Override public void exitBlock(lulu2_grammerParser.BlockContext ctx) {
+		if(ctx.getParent().getClass().getSimpleName().toLowerCase().replace("context","").equals("switch_body")){
+			currentScope = currentScope.getFatherNode();
+			currentSymbolTable = currentScope.getSymbolTable();
+		}
+
+		if(ctx.getParent().getClass().getSimpleName().toLowerCase().replace("context","").equals("cond_stmt")){
+			currentScope = currentScope.getFatherNode();
+			currentSymbolTable = currentScope.getSymbolTable();
+		}
+	}
 	@Override public void enterStmt(lulu2_grammerParser.StmtContext ctx) { }
 	@Override public void exitStmt(lulu2_grammerParser.StmtContext ctx) { }
 	@Override public void enterAssign(lulu2_grammerParser.AssignContext ctx) { }
@@ -295,7 +389,10 @@ public class lulu2_grammerBaseListener implements lulu2_grammerListener {
 			currentSymbolTable.put(ctx.assign(0).var(0).ref(0).ID().getText(),new symbolTableRow(type,width,AccessLabel.NULL,dimention));
 		}
 	}
-	@Override public void exitLoop_stmt(lulu2_grammerParser.Loop_stmtContext ctx) { }
+	@Override public void exitLoop_stmt(lulu2_grammerParser.Loop_stmtContext ctx) {
+		currentScope = currentScope.getFatherNode();
+		currentSymbolTable = currentScope.getSymbolTable();
+	}
 	@Override public void enterType(lulu2_grammerParser.TypeContext ctx) { }
 	@Override public void exitType(lulu2_grammerParser.TypeContext ctx) { }
 	@Override public void enterConst_val(lulu2_grammerParser.Const_valContext ctx) { }

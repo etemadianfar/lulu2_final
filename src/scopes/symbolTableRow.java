@@ -19,7 +19,7 @@ public class symbolTableRow {
     private HashMap<String, Types> parameters;
     private ArrayList<Integer> dimention;
 
-    //class
+    //class && declare
     public symbolTableRow(Types type) {
         this.type = type;
     }

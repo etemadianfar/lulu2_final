@@ -1,7 +1,7 @@
 package scopes;
 
 public class scopeTree {
-    private scopeClass startNode;
+    public scopeClass startNode;
 
     public scopeTree(scopeClass parentScope) {
         this.startNode = parentScope;
@@ -19,5 +19,18 @@ public class scopeTree {
                 return null;
             }
         }
+    }
+
+    public void BFS(scopeClass scopeClass){
+        System.out.println("name: " + scopeClass.getScopeID() );
+        if(scopeClass.getFatherNode() != null)
+            System.out.println("father: " + scopeClass.getFatherNode().getScopeID());
+        else
+            System.out.println("father: null");
+        System.out.println("child count: " + scopeClass.getChildrens().size());
+        System.out.println("------------------------------------------------------");
+
+        for (scopeClass scopeClass1 : scopeClass.getChildrens())
+            BFS(scopeClass1);
     }
 }
