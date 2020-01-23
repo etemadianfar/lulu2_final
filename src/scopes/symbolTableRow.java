@@ -7,12 +7,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-;
-;
 
 public class symbolTableRow {
 
     private Types type;
+    private String userDefineType; //for userdefines types
     private int width;
     private int reAddress;
     private AccessLabel accessLabel;
@@ -32,12 +31,20 @@ public class symbolTableRow {
         this.parameters = parameters;
     }
 
-    //primitive
+    //variable
     public symbolTableRow(Types type, int width, AccessLabel accessLabel, ArrayList<Integer> dimention) {
         this.type = type;
         this.width = width;
         this.accessLabel = accessLabel;
         this.dimention = dimention;
+    }
+
+    public String getUserDefineType() {
+        return userDefineType;
+    }
+
+    public void setUserDefineType(String userDefineType) {
+        this.userDefineType = userDefineType;
     }
 
     public Types getType() {

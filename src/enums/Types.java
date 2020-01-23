@@ -1,3 +1,3 @@
 package enums;
 
-public enum Types { CLASS, FUNCTION, INT, STRING, FLOAT, BOOL, ARRAY}
+public enum Types { CLASS, FUNCTION, INT, STRING, FLOAT, BOOL, ARRAY, USER_DEFINED}
