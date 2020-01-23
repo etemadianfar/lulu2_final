@@ -26,6 +26,9 @@ public class lulu2_grammerBaseListener implements lulu2_grammerListener {
 	HashMap<String, Types> tempMap;
 	int cnt = 1; //counter for getArguments
 
+	HashMap<String, Types> function_arguments = new HashMap<>();
+	HashMap<String, Types> function_parameters = new HashMap<>();
+
 
 	@Override public void enterProgram(lulu2_grammerParser.ProgramContext ctx) { }
 	@Override public void exitProgram(lulu2_grammerParser.ProgramContext ctx) {
@@ -229,6 +232,36 @@ public class lulu2_grammerBaseListener implements lulu2_grammerListener {
 			temp_parameters = null;
 		}
 
+		if(temp_arguments != null) {
+			for (String key : temp_arguments.keySet()) {
+				if (temp_arguments.get(key) == Types.INT)
+					function_arguments.put(key, temp_arguments.get(key));
+				else if (temp_arguments.get(key) == Types.FLOAT)
+					function_arguments.put(key, temp_arguments.get(key));
+				else if (temp_arguments.get(key) == Types.BOOL)
+					function_arguments.put(key, temp_arguments.get(key));
+				else if (temp_arguments.get(key) == Types.STRING)
+					function_arguments.put(key, temp_arguments.get(key));
+				else if (temp_arguments.get(key) == Types.USER_DEFINED)
+					function_arguments.put(key, temp_arguments.get(key));
+			}
+		}
+
+		if(temp_parameters != null) {
+			for (String key : temp_parameters.keySet()) {
+				if (temp_arguments.get(key) == Types.INT)
+					function_parameters.put(key, temp_parameters.get(key));
+				else if (temp_arguments.get(key) == Types.FLOAT)
+					function_parameters.put(key, temp_parameters.get(key));
+				else if (temp_arguments.get(key) == Types.BOOL)
+					function_parameters.put(key, temp_parameters.get(key));
+				else if (temp_arguments.get(key) == Types.STRING)
+					function_parameters.put(key, temp_parameters.get(key));
+				else if (temp_arguments.get(key) == Types.USER_DEFINED)
+					function_parameters.put(key, temp_parameters.get(key));
+			}
+		}
+
 		currentSymbolTable.put(ctx.ID().getText(), new symbolTableRow(Types.FUNCTION, temp_arguments, temp_parameters)); // here we create a row in current symboltable
 
 	}
@@ -320,6 +353,45 @@ public class lulu2_grammerBaseListener implements lulu2_grammerListener {
 		}
 		else if(parentName.equals("loop_stmt"))
 			; //chon bayad motoghayere shomarandeh ro be jadval add kard dar loop_stmt gharar gerefteh
+
+
+
+
+		if(ctx.getParent().getClass().getSimpleName().toLowerCase().replace("context","").equals("fun_def")){
+			if(function_arguments != null) {
+				for (String key : function_arguments.keySet()) {
+					if (function_arguments.get(key) == Types.INT)
+					currentSymbolTable.put(key , new symbolTableRow(function_arguments.get(key), 4, AccessLabel.NULL, null));
+				else if (function_arguments.get(key) == Types.FLOAT)
+					currentSymbolTable.put(key , new symbolTableRow(function_arguments.get(key), 8, AccessLabel.NULL, null));
+				else if (function_arguments.get(key) == Types.BOOL)
+					currentSymbolTable.put(key , new symbolTableRow(function_arguments.get(key), 1, AccessLabel.NULL, null));
+				else if (function_arguments.get(key) == Types.STRING)
+					currentSymbolTable.put(key , new symbolTableRow(function_arguments.get(key), 0, AccessLabel.NULL, null));
+				else if (function_arguments.get(key) == Types.USER_DEFINED)
+					currentSymbolTable.put(key , new symbolTableRow(function_arguments.get(key), 4, AccessLabel.NULL, null));
+				}
+			}
+
+			// add parameters
+			if(function_parameters != null) {
+				for (String key : function_parameters.keySet()) {
+					if (function_parameters.get(key) == Types.INT)
+						currentSymbolTable.put(key, new symbolTableRow(function_parameters.get(key), 4, AccessLabel.NULL, null));
+					else if (function_parameters.get(key) == Types.FLOAT)
+						currentSymbolTable.put(key, new symbolTableRow(function_parameters.get(key), 8, AccessLabel.NULL, null));
+					else if (function_parameters.get(key) == Types.BOOL)
+						currentSymbolTable.put(key, new symbolTableRow(function_parameters.get(key), 1, AccessLabel.NULL, null));
+					else if (function_parameters.get(key) == Types.STRING)
+						currentSymbolTable.put(key, new symbolTableRow(function_parameters.get(key), 0, AccessLabel.NULL, null));
+					else if (function_parameters.get(key) == Types.USER_DEFINED)
+						currentSymbolTable.put(key, new symbolTableRow(function_parameters.get(key), 4, AccessLabel.NULL, null));
+				}
+			}
+
+			function_parameters.clear();
+			function_arguments.clear();
+		}
 
 	}
 	@Override public void exitBlock(lulu2_grammerParser.BlockContext ctx) {
