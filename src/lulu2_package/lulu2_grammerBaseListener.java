@@ -1,5 +1,6 @@
 package lulu2_package;// Generated from D:/Intelli j/lulu2_final/src\lulu2_grammer.g4 by ANTLR 4.8
 
+import com.sun.deploy.security.ValidationState;
 import enums.AccessLabel;
 import enums.Types;
 import org.antlr.v4.runtime.ParserRuleContext;
@@ -32,12 +33,17 @@ public class lulu2_grammerBaseListener implements lulu2_grammerListener {
 
 	@Override public void enterProgram(lulu2_grammerParser.ProgramContext ctx) { }
 	@Override public void exitProgram(lulu2_grammerParser.ProgramContext ctx) {
-		tree.BFS(tree.startNode);
+		//print childs and fathers
+//		tree.BFS(tree.startNode);
+
+		//check rule 1
+		checks.checks.checkRule1(global);
+
 	}
 	@Override public void enterFt_dcl(lulu2_grammerParser.Ft_dclContext ctx) {
 		currentSymbolTable.put("declare",new symbolTableRow(Types.DECLARE));
 
-		temp_scopeClass = new scopeClass(currentScope, "decalre", scopeTypeEnum.DECLARE);
+		temp_scopeClass = new scopeClass(currentScope, "declare", scopeTypeEnum.DECLARE);
 		currentScope.addChild(temp_scopeClass);
 		currentScope = temp_scopeClass;
 		currentSymbolTable = temp_scopeClass.getSymbolTable();
@@ -150,7 +156,8 @@ public class lulu2_grammerBaseListener implements lulu2_grammerListener {
 			}
 		}
 
-		currentSymbolTable.put(ctx.var_val(0).ref().ID().getText(),new symbolTableRow(type,width,AccessLabel.NULL,dimention));
+		if(checks.checks.checkRule11(currentSymbolTable, ctx.var_val(0).ref().ID().getText()))
+			currentSymbolTable.put(ctx.var_val(0).ref().ID().getText(),new symbolTableRow(type,width,AccessLabel.NULL,dimention));
 
 		//baraye chand tarifi:
 		String number = "";
@@ -169,7 +176,8 @@ public class lulu2_grammerBaseListener implements lulu2_grammerListener {
 						dimention.add(Integer.valueOf(temp.charAt(++i)));
 					}
 				}
-				currentSymbolTable.put(ctx.var_val(j).ref().ID().getText(),new symbolTableRow(type,width,AccessLabel.NULL,dimention));
+				if(checks.checks.checkRule11(currentSymbolTable, ctx.var_val(0).ref().ID().getText()))
+					currentSymbolTable.put(ctx.var_val(j).ref().ID().getText(),new symbolTableRow(type,width,AccessLabel.NULL,dimention));
 			}
 		}
 	}
@@ -413,7 +421,52 @@ public class lulu2_grammerBaseListener implements lulu2_grammerListener {
 	@Override public void exitVar(lulu2_grammerParser.VarContext ctx) { }
 	@Override public void enterRef(lulu2_grammerParser.RefContext ctx) { }
 	@Override public void exitRef(lulu2_grammerParser.RefContext ctx) { }
-	@Override public void enterExpr(lulu2_grammerParser.ExprContext ctx) { }
+	@Override public void enterExpr(lulu2_grammerParser.ExprContext ctx) {
+		Types type1 = null, type2 = null;
+
+		if(ctx.op1() != null || ctx.op2() != null || ctx.op3() != null || ctx.op4() != null){
+			if(ctx.expr(0).var() != null) { //expr(0)
+				String ID = ctx.expr(0).var().ref(0).ID().getText();
+				type1 = checks.checks.checkingPrimitiveType(currentScope, ID);
+			}
+			if(ctx.expr(1).var() != null) { //expr(1)
+				String ID = ctx.expr(1).var().ref(0).ID().getText();
+				type2 = checks.checks.checkingPrimitiveType(currentScope, ID);
+			}
+			if(type1 != type2) System.err.println("ERROR(TYPE): TYPE IN MATHEMATICAL AND COMPARATOR OPERATOR ISNT PRIMITIVE ");
+			else{
+				if(type1 == Types.INT && (type2 != Types.FLOAT || type2 != Types.BOOL || type2 != Types.STRING))
+					System.err.println("ERROR(TYPE): TYPES ARE IN-CONVERTABLE");
+
+				if(type1 == Types.BOOL && type2 != Types.INT)
+					System.err.println("ERROR(TYPE): TYPES ARE IN-CONVERTABLE");
+
+				if(type2 == Types.INT && (type1 != Types.FLOAT || type1 != Types.BOOL || type1 != Types.STRING))
+					System.err.println("ERROR(TYPE): TYPES ARE IN-CONVERTABLE");
+
+				if(type2 == Types.BOOL && type1 != Types.INT)
+					System.err.println("ERROR(TYPE): TYPES ARE IN-CONVERTABLE");
+			}
+		}else if(ctx.bitwise() != null ){
+			type1 = checks.checks.findExprType(ctx.expr(0), currentScope);
+			type2 = checks.checks.findExprType(ctx.expr(1), currentScope);
+
+
+			if(type1 == Types.INT && type2 == Types.INT) ;
+			else if((type1 == Types.BOOL && type2 == Types.INT) || (type2 == Types.BOOL && type1 == Types.INT) ) ;
+			else if((type1 == Types.USER_DEFINED && type2 == Types.INT) || (type2 == Types.USER_DEFINED && type1 == Types.INT)) ;
+			else if((type1 == Types.USER_DEFINED && type2 == Types.BOOL) || (type2 == Types.USER_DEFINED && type1 == Types.BOOL)) ;
+			else System.err.println("ERROR(TYPE): TYPES ARE NOT INT OR CONVETABLE TO INT");
+
+		}else if(ctx.logical() != null){
+			type1 = checks.checks.findExprType(ctx.expr(0), currentScope);
+			type2 = checks.checks.findExprType(ctx.expr(1), currentScope);
+
+			if(type1 == Types.BOOL && type2 == Types.BOOL) ;
+			else if((type1 == Types.BOOL && type2 == Types.INT) || (type2 == Types.BOOL && type1 == Types.INT) ) ;
+			else System.err.println("ERROR(TYPE): TYPES ARE NOT INT OR CONVETABLE TO INT");
+		}
+	}
 	@Override public void exitExpr(lulu2_grammerParser.ExprContext ctx) { }
 	@Override public void enterFunc_call(lulu2_grammerParser.Func_callContext ctx) { }
 	@Override public void exitFunc_call(lulu2_grammerParser.Func_callContext ctx) { }
