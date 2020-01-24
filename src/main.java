@@ -39,13 +39,38 @@ public class Main{
                 "    }\n" +
                 "}\n" +
                 "(string str1) = function myFunc2(string str2){\n" +
-                " \n" +
+                "    switch this.object {\n" +
+                "        caseof 1:{\n" +
+                "            str2 = 'this is case 1';\n" +
+                "        }\n" +
+                "        caseof 2:{\n" +
+                "            str2 = 'this is case 2' ;\n" +
+                "        }\n" +
+                "        default:{\n" +
+                "            str2 = myFunc(this.object,this.object2);\n" +
+                "        }\n" +
+                "    }\n" +
                 "}\n" +
                 "(bool bo) = function myFunc3(int[] c, string str){\n" +
+                "    int a = 0x23;\n" +
+                "    str = 'is this a\\t valid String\\...\\n? yeah this is valid String~!\\\\' %$%#$#$ (){}[] ';\n" +
                 "}\n" +
                 "\n" +
                 "type myType1: _id1{\n" +
-                "   int a;\n" +
+                "    int sum;\n" +
+                "    private const int x,y,z;\n" +
+                "    (string s) = function myFunc(){\n" +
+                "        if(x == 4 && (y == 10 || z >= 1)){\n" +
+                "            for int i = 0; i <= 10; {\n" +
+                "                destruct [][]arr;\n" +
+                "                if(i == 5){\n" +
+                "                    continue;\n" +
+                "                }else{\n" +
+                "                    sum = i+5*x;\n" +
+                "                }\n" +
+                "            }\n" +
+                "        }\n" +
+                "    }\n" +
                 "}";
 
 

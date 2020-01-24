@@ -249,15 +249,15 @@ public class lulu2_grammerBaseListener implements lulu2_grammerListener {
 
 		if(temp_parameters != null) {
 			for (String key : temp_parameters.keySet()) {
-				if (temp_arguments.get(key) == Types.INT)
+				if (temp_parameters.get(key) == Types.INT)
 					function_parameters.put(key, temp_parameters.get(key));
-				else if (temp_arguments.get(key) == Types.FLOAT)
+				else if (temp_parameters.get(key) == Types.FLOAT)
 					function_parameters.put(key, temp_parameters.get(key));
-				else if (temp_arguments.get(key) == Types.BOOL)
+				else if (temp_parameters.get(key) == Types.BOOL)
 					function_parameters.put(key, temp_parameters.get(key));
-				else if (temp_arguments.get(key) == Types.STRING)
+				else if (temp_parameters.get(key) == Types.STRING)
 					function_parameters.put(key, temp_parameters.get(key));
-				else if (temp_arguments.get(key) == Types.USER_DEFINED)
+				else if (temp_parameters.get(key) == Types.USER_DEFINED)
 					function_parameters.put(key, temp_parameters.get(key));
 			}
 		}
@@ -273,7 +273,7 @@ public class lulu2_grammerBaseListener implements lulu2_grammerListener {
 		symbolTableRow temp = currentScope.getFatherNode().getSymbolTable().get(ctx.ID().getText());
 
 		//calculate args width
-		if(temp != null) {
+		if(temp.getArguments() != null) {
 			for (Types type : temp.getArguments().values()) {
 				if (type == Types.INT) width_arg += 4;
 				else if (type == Types.FLOAT) width_arg += 8;
@@ -284,7 +284,7 @@ public class lulu2_grammerBaseListener implements lulu2_grammerListener {
 		}
 
 		//calculate params width
-		if(temp != null) {
+		if(temp.getParameters() != null) {
 			for (Types type : temp.getParameters().values()) {
 				if (type == Types.INT) width_parameters += 4;
 				else if (type == Types.FLOAT) width_parameters += 8;

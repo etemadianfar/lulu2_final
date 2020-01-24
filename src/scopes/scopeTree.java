@@ -23,7 +23,9 @@ public class scopeTree {
 
     public void BFS(scopeClass scopeClass){
         System.out.println("name: " + scopeClass.getScopeID() );
-        System.out.println(scopeClass.getSymbolTable());
+        if(scopeClass.getFatherNode() != null)
+            System.out.println("father: " + scopeClass.getFatherNode().getScopeID());
+        System.out.println("child Count: " + scopeClass.getChildrens().size());
         System.out.println("------------------------------------------------------");
 
         for (scopeClass scopeClass1 : scopeClass.getChildrens())
