@@ -14,11 +14,10 @@ public class Main{
         String st = "declare{\n" +
                 "    int a;\n" +
                 "}\n" +
-                "function myFunc1(){\n" +
-                "    bool a;\n" +
-                "    int b;\n" +
-                "    int c =  (a || b);\n" +
-                "}\n";
+                "function start(int i, int j){\n" +
+                "   " +
+                "      destruct f;" +
+                "}";
 
 
         CharStream input = CharStreams.fromString(st);

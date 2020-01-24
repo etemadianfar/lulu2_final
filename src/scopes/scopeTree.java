@@ -8,15 +8,14 @@ public class scopeTree {
     }
 
 
-
-    public symbolTableRow find(scopeClass current,String id){
-        if(current.getSymbolTable().get(id) != null) {
-            return current.getSymbolTable().get(id);
+    public static Boolean find(scopeClass current,String id){
+        if(current.getScopeID().equals(id)) {
+            return true;
         }else{
             if(current.getFatherNode() != null){
                 return find(current.getFatherNode(), id);
             }else {
-                return null;
+                return false;
             }
         }
     }

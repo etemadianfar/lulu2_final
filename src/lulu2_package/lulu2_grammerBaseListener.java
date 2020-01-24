@@ -16,8 +16,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import static checks.checks.checkingPrimitiveType1;
 import static checks.checks.findExprType;
 import static checks.checks.gettingType;
+import static scopes.scopeTree.find;
 
 public class lulu2_grammerBaseListener implements lulu2_grammerListener {
 
@@ -42,6 +44,12 @@ public class lulu2_grammerBaseListener implements lulu2_grammerListener {
 		//check rule 1
 		checks.checks.checkRule1(global);
 
+		boolean startFlag = false;
+		for(String srt : global.getSymbolTable().keySet()){
+			if(srt.equals("start")) startFlag = true;
+		}
+
+		if(startFlag != true) System.err.println("ERROR: COULD NOT FIND START FUNCTION ");
 	}
 	@Override public void enterFt_dcl(lulu2_grammerParser.Ft_dclContext ctx) {
 		currentSymbolTable.put("declare",new symbolTableRow(Types.DECLARE));
@@ -445,7 +453,29 @@ public class lulu2_grammerBaseListener implements lulu2_grammerListener {
 			currentSymbolTable = currentScope.getSymbolTable();
 		}
 	}
-	@Override public void enterStmt(lulu2_grammerParser.StmtContext ctx) { }
+	@Override public void enterStmt(lulu2_grammerParser.StmtContext ctx) {
+		String str = ctx.getText().toLowerCase().replace(";","");
+
+		//SWITCH
+		if(str.equals("break")) {
+			if (find(currentScope, "switch") || find(currentScope, "loop")) ;
+			else System.err.println("ERROR: BREAK SHOULD BE IN THE SWITCH OR LOOP ");
+		}
+
+		//LOOP
+		if(str.equals("continue")){
+			if (!find(currentScope, "loop")) System.err.println("ERROR: CONTINUE SHOULD BE IN THE LOOP");
+		}
+
+		if(ctx.ID() != null){
+			Types types = gettingType(currentScope, ctx.ID().getText());
+			if(types == null) System.err.println("ERROR: DESTRUCT HAS NOT ON USER DEFINE TYPE");
+			else{
+				if(types != Types.USER_DEFINED) System.err.println("ERROR: DESTRUCT HAS NOT ON USER DEFINE TYPE");
+			}
+		}
+
+	}
 	@Override public void exitStmt(lulu2_grammerParser.StmtContext ctx) { }
 	@Override public void enterAssign(lulu2_grammerParser.AssignContext ctx) {
 		Types type1=null, type2=null;
@@ -480,40 +510,52 @@ public class lulu2_grammerBaseListener implements lulu2_grammerListener {
 	@Override public void enterExpr(lulu2_grammerParser.ExprContext ctx) {
 		Types type1 = null, type2 = null;
 
-		if(ctx.op1() != null || ctx.op2() != null || ctx.op3() != null || ctx.op4() != null){
-			if(ctx.expr(0).var() != null) { //expr(0)
-				String ID = ctx.expr(0).var().ref(0).ID().getText();
-				type1 = checks.checks.checkingPrimitiveType(currentScope, ID);
+		if(ctx.op1() != null || ctx.op2() != null || ctx.op3() != null || ctx.op4() != null) {
+			if ((ctx.expr(0).var().ref(0).ID() != null) && (ctx.expr(1).const_val() != null)) {
+				if (!checkingPrimitiveType1(ctx.expr(0), currentScope))
+					System.err.println("ERROR: TYPE IN MATHEMATICAL AND COMPARATOR OPERATOR ISNT PRIMITIVE ");
+				else {
+					type1 = gettingType(currentScope, ctx.expr(0).var().ref(0).ID().getText());
+					type2 = findExprType(ctx.expr(1), currentScope);
+				}
+			} else if ((ctx.expr(0).var().ref(0).ID() != null) && (ctx.expr(1).var().ref(0).ID() != null)) {
+				if (!(checkingPrimitiveType1(ctx.expr(0), currentScope) && checkingPrimitiveType1(ctx.expr(1), currentScope)))
+					System.err.println("ERROR: TYPE IN MATHEMATICAL AND COMPARATOR OPERATOR ISNT PRIMITIVE ");
+				else {
+					type1 = gettingType(currentScope, ctx.expr(0).var().ref(0).ID().getText());
+					type2 = gettingType(currentScope, ctx.expr(1).var().ref(0).ID().getText());
+				}
+			} else if ((ctx.expr(0).const_val() != null) && (ctx.expr(1).var().ref(0).ID() != null)) {
+				if (!checkingPrimitiveType1(ctx.expr(1), currentScope))
+					System.err.println("ERROR: TYPE IN MATHEMATICAL AND COMPARATOR OPERATOR ISNT PRIMITIVE ");
+				else {
+					type2 = gettingType(currentScope, ctx.expr(1).var().ref(0).ID().getText());
+					type1 = findExprType(ctx.expr(0), currentScope);
+				}
+			} else if ((ctx.expr(0).const_val() != null) && (ctx.expr(1).const_val() != null)) {
+				type1 = findExprType(ctx.expr(0), currentScope);
+				type2 = findExprType(ctx.expr(1), currentScope);
 			}
-			if(ctx.expr(1).var() != null) { //expr(1)
-				String ID = ctx.expr(1).var().ref(0).ID().getText();
-				type2 = checks.checks.checkingPrimitiveType(currentScope, ID);
-			}
-			if(type1 != type2) System.err.println("ERROR(TYPE): TYPE IN MATHEMATICAL AND COMPARATOR OPERATOR ISNT PRIMITIVE ");
-			else{
-				if(type1 == Types.INT && (type2 != Types.FLOAT || type2 != Types.BOOL || type2 != Types.STRING))
-					System.err.println("ERROR(TYPE): TYPES ARE IN-CONVERTABLE");
 
-				if(type1 == Types.BOOL && type2 != Types.INT)
-					System.err.println("ERROR(TYPE): TYPES ARE IN-CONVERTABLE");
-
-				if(type2 == Types.INT && (type1 != Types.FLOAT || type1 != Types.BOOL || type1 != Types.STRING))
-					System.err.println("ERROR(TYPE): TYPES ARE IN-CONVERTABLE");
-
-				if(type2 == Types.BOOL && type1 != Types.INT)
-					System.err.println("ERROR(TYPE): TYPES ARE IN-CONVERTABLE");
-			}
-		}else if(ctx.bitwise() != null ){
+			if (type1 == type2) ; //yeksan boodan
+			else if (type2 == Types.INT && (type1 == Types.BOOL || type1 == Types.FLOAT || type1 == Types.STRING)) ;
+			else if (type2 == Types.BOOL && type1 == Types.INT) ;
+			else if (type2 == Types.USER_DEFINED && type1 == Types.INT) ;
+			else if (type1 == Types.INT && (type2 == Types.BOOL || type2 == Types.FLOAT || type2 == Types.STRING)) ;
+			else if (type1 == Types.BOOL && type2 == Types.INT) ;
+			else if (type1 == Types.USER_DEFINED && type2 == Types.INT) ;
+			else System.err.println("ERROR(TYPE): TYPES IN ASSIGN IS NOT MATCHED OR CONVERTABLE");
+		}else if(ctx.bitwise() != null ) {
 			type1 = findExprType(ctx.expr(0), currentScope);
 			type2 = findExprType(ctx.expr(1), currentScope);
 
-
-			if(type1 == Types.INT && type2 == Types.INT) ;
-			else if((type1 == Types.BOOL && type2 == Types.INT) || (type2 == Types.BOOL && type1 == Types.INT) ) ;
-			else if((type1 == Types.USER_DEFINED && type2 == Types.INT) || (type2 == Types.USER_DEFINED && type1 == Types.INT)) ;
-			else if((type1 == Types.USER_DEFINED && type2 == Types.BOOL) || (type2 == Types.USER_DEFINED && type1 == Types.BOOL)) ;
+			if (type1 == Types.INT && type2 == Types.INT) ;
+			else if ((type1 == Types.BOOL && type2 == Types.INT) || (type2 == Types.BOOL && type1 == Types.INT)) ;
+			else if ((type1 == Types.USER_DEFINED && type2 == Types.INT) || (type2 == Types.USER_DEFINED && type1 == Types.INT))
+				;
+			else if ((type1 == Types.USER_DEFINED && type2 == Types.BOOL) || (type2 == Types.USER_DEFINED && type1 == Types.BOOL))
+				;
 			else System.err.println("ERROR(TYPE): TYPES ARE NOT INT OR CONVETABLE TO INT");
-
 		}else if(ctx.logical() != null){
 			type1 = findExprType(ctx.expr(0), currentScope);
 			type2 = findExprType(ctx.expr(1), currentScope);
@@ -532,7 +574,22 @@ public class lulu2_grammerBaseListener implements lulu2_grammerListener {
 	@Override public void exitHandle_call(lulu2_grammerParser.Handle_callContext ctx) { }
 	@Override public void enterParams(lulu2_grammerParser.ParamsContext ctx) { }
 	@Override public void exitParams(lulu2_grammerParser.ParamsContext ctx) { }
-	@Override public void enterCond_stmt(lulu2_grammerParser.Cond_stmtContext ctx) { }
+	@Override public void enterCond_stmt(lulu2_grammerParser.Cond_stmtContext ctx) {
+		Types type = null;
+		if(ctx.expr() != null){
+			if(ctx.expr().getText().charAt(0) == '(') {
+				type = findExprType(ctx.expr().expr(0), currentScope);
+			}
+			else type = findExprType(ctx.expr(), currentScope);
+
+			if(type == Types.BOOL || type == Types.INT);
+			else System.err.println("ERROR: CONDITION IN IF STATEMENT SHOULD BE BOOL OR INT ");
+		}else if(ctx.var() != null){
+			type = gettingType(currentScope, ctx.var().ref(0).ID().getText());
+			if(type == Types.INT || type == Types.BOOL) ;
+			else System.err.println("ERROR: CONDITION IN IF STATEMENT SHOULD BE BOOL OR INT ");
+		}
+	}
 	@Override public void exitCond_stmt(lulu2_grammerParser.Cond_stmtContext ctx) { }
 	@Override public void enterSwitch_body(lulu2_grammerParser.Switch_bodyContext ctx) { }
 	@Override public void exitSwitch_body(lulu2_grammerParser.Switch_bodyContext ctx) { }
@@ -568,6 +625,20 @@ public class lulu2_grammerBaseListener implements lulu2_grammerListener {
 			}
 
 			currentSymbolTable.put(ctx.assign(0).var(0).ref(0).ID().getText(),new symbolTableRow(type,width,AccessLabel.NULL,dimention));
+
+
+			//checking type of conditional stmt
+			Types type1 = null;
+			if(ctx.expr().getText().charAt(0) == '(') {
+				type1 = findExprType(ctx.expr().expr(0), currentScope);
+			}
+			else {
+				type1 = findExprType(ctx.expr(), currentScope);
+			}
+
+			if(type1 == Types.BOOL || type1 == Types.INT);
+			else System.err.println("ERROR: CONDITION IN IF STATEMENT SHOULD BE BOOL OR INT ");
+
 		}
 	}
 	@Override public void exitLoop_stmt(lulu2_grammerParser.Loop_stmtContext ctx) {
