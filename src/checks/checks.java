@@ -123,7 +123,9 @@ public class checks {
                 else if (expr.const_val().REAL_CONST() != null) return Types.FLOAT;
                 else return null;
             }
-        } else {
+        }else if(expr.getText().charAt(0) == '(') {
+            return findExprType(expr.expr(0),current);
+        }else {
             Types type1, type2;
             type1 = findExprType(expr.expr(0), current);
             type2 = findExprType(expr.expr(1), current);
