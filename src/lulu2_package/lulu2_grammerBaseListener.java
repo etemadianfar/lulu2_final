@@ -16,6 +16,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import static checks.checks.findExprType;
+import static checks.checks.gettingType;
+
 public class lulu2_grammerBaseListener implements lulu2_grammerListener {
 
 	scopeClass global = new scopeClass(null, "global", scopeTypeEnum.GLOBAL); //global scope
@@ -179,6 +182,35 @@ public class lulu2_grammerBaseListener implements lulu2_grammerListener {
 				if(checks.checks.checkRule11(currentSymbolTable, ctx.var_val(0).ref().ID().getText()))
 					currentSymbolTable.put(ctx.var_val(j).ref().ID().getText(),new symbolTableRow(type,width,AccessLabel.NULL,dimention));
 			}
+		}
+
+		if(ctx.var_val(0).expr() != null){
+			Types type1=null, type2=null;
+			if(ctx.type().getText().equals("int")) type1 = Types.INT;
+			if(ctx.type().getText().equals("string")) type1 = Types.STRING;
+			if(ctx.type().getText().equals("bool")) type1 = Types.BOOL;
+			if(ctx.type().getText().equals("float")) type1 = Types.FLOAT;
+			if(ctx.type().ID() != null) type1 = Types.USER_DEFINED;
+
+			//type2:
+			if(ctx.var_val(0).expr().op1() != null || ctx.var_val(0).expr().op2() != null || ctx.var_val(0).expr().op3() != null || ctx.var_val(0).expr().op4() != null || ctx.var_val(0).expr().logical() != null || ctx.var_val(0).expr().bitwise() != null){
+				type2 = findExprType(ctx.var_val(0).expr(), currentScope);
+			}else if(ctx.var_val(0).expr().const_val() != null){
+				if(ctx.var_val(0).expr().const_val().INT_CONST() != null) type2 = Types.INT;
+				else if(ctx.var_val(0).expr().const_val().BOOL_CONST() != null) type2 = Types.BOOL;
+				else if(ctx.var_val(0).expr().const_val().STRING_CONST() != null) type2 = Types.STRING;
+				else if(ctx.var_val(0).expr().const_val().REAL_CONST() != null) type2 = Types.FLOAT;
+			}else if(ctx.var_val(0).expr().getText().charAt(0) == '('){
+				type2 = findExprType(ctx.var_val(0).expr().expr(0), currentScope);
+			}else if(ctx.var_val(0).expr().var() != null){
+				type2 = gettingType(currentScope, ctx.var_val(0).expr().var().ref(0).ID().getText());
+			}
+
+			if(type1 == type2) ;
+			else if(type2 == Types.INT && (type1==Types.BOOL || type1==Types.FLOAT || type1==Types.STRING)) ;
+			else if(type2 == Types.BOOL && type1 == Types.INT);
+			else if(type2 == Types.USER_DEFINED && type1 == Types.INT);
+			else System.err.println("ERROR(TYPE): TYPES IN ASSIGN IS NOT MATCHED OR CONVERTABLE");
 		}
 	}
 	@Override public void exitVar_def(lulu2_grammerParser.Var_defContext ctx) { }
@@ -415,7 +447,31 @@ public class lulu2_grammerBaseListener implements lulu2_grammerListener {
 	}
 	@Override public void enterStmt(lulu2_grammerParser.StmtContext ctx) { }
 	@Override public void exitStmt(lulu2_grammerParser.StmtContext ctx) { }
-	@Override public void enterAssign(lulu2_grammerParser.AssignContext ctx) { }
+	@Override public void enterAssign(lulu2_grammerParser.AssignContext ctx) {
+		Types type1=null, type2=null;
+		type1 = gettingType(currentScope, ctx.var(0).ref(0).ID().getText());
+
+		//type2:
+		if(ctx.expr().op1() != null || ctx.expr().op2() != null || ctx.expr().op3() != null || ctx.expr().op4() != null || ctx.expr().logical() != null || ctx.expr().bitwise() != null){
+			type2 = findExprType(ctx.expr(), currentScope);
+		}else if(ctx.expr().const_val() != null){
+			if(ctx.expr().const_val().INT_CONST() != null) type2 = Types.INT;
+			else if(ctx.expr().const_val().BOOL_CONST() != null) type2 = Types.BOOL;
+			else if(ctx.expr().const_val().STRING_CONST() != null) type2 = Types.STRING;
+			else if(ctx.expr().const_val().REAL_CONST() != null) type2 = Types.FLOAT;
+		}else if(ctx.expr().getText().charAt(0) == '('){
+			type2 = findExprType(ctx.expr().expr(0), currentScope);
+		}else if(ctx.expr().var() != null){
+			type2 = gettingType(currentScope, ctx.expr().var().ref(0).ID().getText());
+		}
+
+		if(type1 == type2) ;
+		else if(type2 == Types.INT && (type1==Types.BOOL || type1==Types.FLOAT || type1==Types.STRING)) ;
+		else if(type2 == Types.BOOL && type1 == Types.INT);
+		else if(type2 == Types.USER_DEFINED && type1 == Types.INT);
+		else System.err.println("ERROR(TYPE): TYPES IN ASSIGN IS NOT MATCHED OR CONVERTABLE");
+
+	}
 	@Override public void exitAssign(lulu2_grammerParser.AssignContext ctx) { }
 	@Override public void enterVar(lulu2_grammerParser.VarContext ctx) { }
 	@Override public void exitVar(lulu2_grammerParser.VarContext ctx) { }
@@ -448,8 +504,8 @@ public class lulu2_grammerBaseListener implements lulu2_grammerListener {
 					System.err.println("ERROR(TYPE): TYPES ARE IN-CONVERTABLE");
 			}
 		}else if(ctx.bitwise() != null ){
-			type1 = checks.checks.findExprType(ctx.expr(0), currentScope);
-			type2 = checks.checks.findExprType(ctx.expr(1), currentScope);
+			type1 = findExprType(ctx.expr(0), currentScope);
+			type2 = findExprType(ctx.expr(1), currentScope);
 
 
 			if(type1 == Types.INT && type2 == Types.INT) ;
@@ -459,12 +515,12 @@ public class lulu2_grammerBaseListener implements lulu2_grammerListener {
 			else System.err.println("ERROR(TYPE): TYPES ARE NOT INT OR CONVETABLE TO INT");
 
 		}else if(ctx.logical() != null){
-			type1 = checks.checks.findExprType(ctx.expr(0), currentScope);
-			type2 = checks.checks.findExprType(ctx.expr(1), currentScope);
+			type1 = findExprType(ctx.expr(0), currentScope);
+			type2 = findExprType(ctx.expr(1), currentScope);
 
 			if(type1 == Types.BOOL && type2 == Types.BOOL) ;
 			else if((type1 == Types.BOOL && type2 == Types.INT) || (type2 == Types.BOOL && type1 == Types.INT) ) ;
-			else System.err.println("ERROR(TYPE): TYPES ARE NOT INT OR CONVETABLE TO INT");
+			else System.err.println("ERROR(TYPE): TYPES ARE NOT INT OR CONVETABLE TO BOOL");
 		}
 	}
 	@Override public void exitExpr(lulu2_grammerParser.ExprContext ctx) { }

@@ -16,8 +16,8 @@ public class Main{
                 "}\n" +
                 "function myFunc1(){\n" +
                 "    bool a;\n" +
-                "    bool b;\n" +
-                "    bool c = a || b;\n" +
+                "    int b;\n" +
+                "    int c =  (a || b);\n" +
                 "}\n";
 
 
